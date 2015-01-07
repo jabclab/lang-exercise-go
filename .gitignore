@@ -25,3 +25,6 @@ _testmain.go
 
 # Binary
 lang-exercise-go
+
+# Vim swap files
+*.swp

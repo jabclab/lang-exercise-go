@@ -2,12 +2,22 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/garyburd/redigo/redis"
 )
 
+func redisPort() string {
+	envVar := os.Getenv("REDIS_PORT")
+	if envVar != "" {
+		return envVar
+	}
+
+	return "6379"
+}
+
 func main() {
-	c, err := redis.Dial("tcp", ":6379")
+	c, err := redis.Dial("tcp", ":" + redisPort())
 
 	if err != nil {
 		log.Fatal(err)
