@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/codegangsta/martini"
-	"github.com/garyburd/redigo/redis"
 	"github.com/martini-contrib/render"
+	"github.com/garyburd/redigo/redis"
 )
 
 var m *martini.ClassicMartini
@@ -28,13 +28,13 @@ func init() {
 	// Additional middleware.
 	m.Use(render.Renderer())
 
-	// Routes
+	// Routes.
 	m.Post("/in/", AddMessage)
 	m.Get("/messages/:id/", GetMessage)
 }
 
 func main() {
-	store, err := redis.Dial("tcp", ":"+redisPort())
+	store, err := redis.Dial("tcp", ":" + redisPort())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,10 +44,9 @@ func main() {
 	// close.
 	defer store.Close()
 
-	// Map the Redis instance
+	// Map the Redis instance.
 	m.Map(store)
 
-	// Some examples seem to wrap this in an anonymous
-	// go routine but not sure why at this point!
+	// Start the HTTP server.
 	m.RunOnAddr(":8888")
 }
