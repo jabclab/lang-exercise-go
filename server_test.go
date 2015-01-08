@@ -8,14 +8,21 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
-	inUrl            = "http://localhost:8080/in/"
-	outUrl           = "http://localhost:8080/messages/"
 	testingRedisPort = 7777
+	testingHttpPort  = 9999
+)
+
+var (
+	inUrl  = fmt.Sprintf("http://localhost:%d/in/", testingHttpPort)
+	outUrl = fmt.Sprintf("http://localhost:%d/messages/", testingHttpPort)
 )
 
 func stopRedis() {
@@ -54,8 +61,11 @@ func TestMain(m *testing.M) {
 	startRedis()
 
 	// Start the HTTP server for our integration tests.
-	os.Setenv("REDIS_PORT", "7777")
-	main()
+	os.Setenv("REDIS_PORT", strconv.Itoa(testingRedisPort))
+	os.Setenv("HTTP_PORT", strconv.Itoa(testingHttpPort))
+	go func() {
+		main()
+	}()
 
 	// Run the tests.
 	result := m.Run()
@@ -73,9 +83,9 @@ func TestReturns201IfCreatesMessage(t *testing.T) {
 		t.Skip("skipping in short mode")
 	}
 
-	msg := "my testing message"
-
-	resp, err := http.Post(inUrl, "text/plain", bytes.NewBufferString(msg))
+	resp, err := http.Post(
+		inUrl, "text/plain", bytes.NewBufferString("my test message"),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,9 +98,11 @@ func TestReturns201IfCreatesMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if resp.Status != string(http.StatusCreated) {
-		t.Errorf("Incorrect status code")
-	}
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+//	if resp.Status != string(http.StatusCreated) {
+//		t.Errorf("Incorrect status code")
+//	}
 
 	//if string(body[:]) != "{\"messageId\":1}" {
 	//		t.Errorf("Message was not as expected")

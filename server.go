@@ -5,19 +5,27 @@ import (
 	"os"
 
 	"github.com/codegangsta/martini"
-	"github.com/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
+	"github.com/martini-contrib/render"
 )
 
 var m *martini.ClassicMartini
 
-func redisPort() string {
-	envVar := os.Getenv("REDIS_PORT")
-	if envVar != "" {
-		return envVar
+func port(envVar, defaultValue string) string {
+	envValue := os.Getenv(envVar)
+	if envValue != "" {
+		return envValue
 	}
 
-	return "6379"
+	return defaultValue
+}
+
+func redisPort() string {
+	return port("REDIS_PORT", "6379")
+}
+
+func httpPort() string {
+	return port("HTTP_PORT", "8888")
 }
 
 func init() {
@@ -48,5 +56,5 @@ func main() {
 	m.Map(store)
 
 	// Start the HTTP server.
-	m.RunOnAddr(":8888")
+	m.RunOnAddr(":" + httpPort())
 }
