@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/codegangsta/martini"
-	"github.com/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
+	"github.com/martini-contrib/render"
 )
 
 func AddMessage(req *http.Request, store redis.Conn, r render.Render) {
@@ -33,7 +33,7 @@ func AddMessage(req *http.Request, store redis.Conn, r render.Render) {
 	// fine for now.
 	r.JSON(http.StatusCreated, map[string]interface{}{
 		"messageId": msgId,
-	});
+	})
 }
 
 func GetMessage(req *http.Request, store redis.Conn, params martini.Params) (int, string) {

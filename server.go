@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/codegangsta/martini"
-	"github.com/martini-contrib/render"
 	"github.com/garyburd/redigo/redis"
+	"github.com/martini-contrib/render"
 )
 
 var m *martini.ClassicMartini
@@ -34,7 +34,7 @@ func init() {
 }
 
 func main() {
-	store, err := redis.Dial("tcp", ":" + redisPort())
+	store, err := redis.Dial("tcp", ":"+redisPort())
 	if err != nil {
 		log.Fatal(err)
 	}
