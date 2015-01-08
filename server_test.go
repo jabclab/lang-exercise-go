@@ -4,16 +4,17 @@ import (
 	"bytes"
 	//"io/ioutil"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
-	"log"
 	"os/exec"
 	"testing"
+	"time"
 )
 
 const (
-	inUrl = "http://localhost:8080/in/"
-	outUrl = "http://localhost:8080/messages/"
+	inUrl            = "http://localhost:8080/in/"
+	outUrl           = "http://localhost:8080/messages/"
 	testingRedisPort = 7777
 )
 
@@ -43,6 +44,10 @@ func startRedis() {
 	if startErr != nil {
 		log.Fatal(startErr)
 	}
+
+	// Not very nice, but give redis-server a chance to
+	// start.
+	time.Sleep(250 * time.Millisecond)
 }
 
 func TestMain(m *testing.M) {
