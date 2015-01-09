@@ -20,10 +20,6 @@ var (
 	outUrl = fmt.Sprintf("http://localhost:%d/messages/", testingHttpPort)
 )
 
-type MessageCreationResponse struct {
-	MessageId float64 `json:"messageId"`
-}
-
 func stopRedis() {
 	// Make sure Redis server is running.
 	killCmd := exec.Command(
@@ -76,7 +72,4 @@ func TestMain(m *testing.M) {
 	stopRedis()
 
 	os.Exit(result)
-}
-
-func TestServer(t *testing.T) {
 }

@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type MessageCreationResponse struct {
+	MessageId float64 `json:"messageId"`
+}
+
 func TestReturnsMessageIfRequested(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping in short mode")

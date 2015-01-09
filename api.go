@@ -20,13 +20,13 @@ func AddMessage(req *http.Request, store redis.Conn, r render.Render) {
 	// Increment the message ID.
 	msgId, msgIdErr := store.Do("INCR", "messageId")
 	if msgIdErr != nil {
-		panic(err)
+		panic(msgIdErr)
 	}
 
 	// Store the message.
 	_, storeErr := store.Do("HSET", "messages", msgId, msg)
 	if storeErr != nil {
-		panic(err)
+		panic(storeErr)
 	}
 
 	// We could also return the errors as JSON but this is

@@ -42,7 +42,7 @@ func init() {
 }
 
 func main() {
-	store, err := redis.Dial("tcp", ":" + redisPort())
+	store, err := redis.Dial("tcp", ":"+redisPort())
 	if err != nil {
 		log.Fatal(err)
 	}
