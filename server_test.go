@@ -1,18 +1,13 @@
 package main
 
 import (
-	"bytes"
-	//"io/ioutil"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -24,6 +19,10 @@ var (
 	inUrl  = fmt.Sprintf("http://localhost:%d/in/", testingHttpPort)
 	outUrl = fmt.Sprintf("http://localhost:%d/messages/", testingHttpPort)
 )
+
+type MessageCreationResponse struct {
+	MessageId float64 `json:"messageId"`
+}
 
 func stopRedis() {
 	// Make sure Redis server is running.
@@ -60,12 +59,16 @@ func startRedis() {
 func TestMain(m *testing.M) {
 	startRedis()
 
-	// Start the HTTP server for our integration tests.
+	// Start the HTTP server for our integration tests. Note
+	// that this must be started in a go routine so that it
+	// does not block execution of the tests.
 	os.Setenv("REDIS_PORT", strconv.Itoa(testingRedisPort))
 	os.Setenv("HTTP_PORT", strconv.Itoa(testingHttpPort))
-	go func() {
-		main()
-	}()
+	// Another option for this would be to use
+	// net/http/httptest with NewServer. However I like this
+	// way as with using this we're driving our web server
+	// without any intervention.
+	go main()
 
 	// Run the tests.
 	result := m.Run()
@@ -76,37 +79,6 @@ func TestMain(m *testing.M) {
 }
 
 func TestServer(t *testing.T) {
-}
-
-func TestReturns201IfCreatesMessage(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping in short mode")
-	}
-
-	resp, err := http.Post(
-		inUrl, "text/plain", bytes.NewBufferString("my test message"),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	defer resp.Body.Close()
-
-	//	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, http.StatusCreated, resp.StatusCode)
-
-//	if resp.Status != string(http.StatusCreated) {
-//		t.Errorf("Incorrect status code")
-//	}
-
-	//if string(body[:]) != "{\"messageId\":1}" {
-	//		t.Errorf("Message was not as expected")
-	//	}
 }
 
 func BenchmarkMessageCreation(*testing.B) {
