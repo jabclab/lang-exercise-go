@@ -4,6 +4,6 @@ import (
 	"testing"
 )
 
-func BenchmarkMessageCreation(*testing.B) {
+func BenchmarkMessageCreation(b *testing.B) {
 
 }
