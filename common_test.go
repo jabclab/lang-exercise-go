@@ -80,7 +80,3 @@ func TestMain(m *testing.M) {
 
 func TestServer(t *testing.T) {
 }
-
-func BenchmarkMessageCreation(*testing.B) {
-
-}
