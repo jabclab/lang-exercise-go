@@ -11,20 +11,17 @@ import (
 )
 
 const (
-	testingRedisPort = 7777
-	testingHttpPort  = 9999
+	localTestingRedisPort = 7777
+	localTestingHttpPort  = 9999
 )
 
-var (
-	inUrl  = fmt.Sprintf("http://localhost:%d/in/", testingHttpPort)
-	outUrl = fmt.Sprintf("http://localhost:%d/messages/", testingHttpPort)
-)
+var inUrl, outUrl string
 
 func stopRedis() {
 	// Make sure Redis server is running.
 	killCmd := exec.Command(
 		"killall",
-		fmt.Sprintf("redis-server *:%d", testingRedisPort),
+		fmt.Sprintf("redis-server *:%d", localTestingRedisPort),
 	)
 	killCmd.Run()
 }
@@ -39,7 +36,7 @@ func startRedis() {
 
 	startCmd := exec.Command(
 		redisPath,
-		fmt.Sprintf("--port %d", testingRedisPort),
+		fmt.Sprintf("--port %d", localTestingRedisPort),
 	)
 	startErr := startCmd.Start()
 
@@ -61,9 +58,15 @@ func TestMain(m *testing.M) {
 	if redisRequired {
 		startRedis()
 
-		os.Setenv("REDIS_PORT", strconv.Itoa(testingRedisPort))
-		os.Setenv("HTTP_PORT", strconv.Itoa(testingHttpPort))
+		os.Setenv("REDIS_PORT", strconv.Itoa(localTestingRedisPort))
+		os.Setenv("HTTP_PORT", strconv.Itoa(localTestingHttpPort))
 	}
+
+	// Use the implementation code which obtains HTTP port.
+	http := httpPort()
+
+	inUrl = fmt.Sprintf("http://localhost:%s/in/", http)
+	outUrl = fmt.Sprintf("http://localhost:%s/messages/", http)
 
 	// Start the HTTP server for our integration tests. Note
 	// that this must be started in a go routine so that it
