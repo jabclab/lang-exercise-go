@@ -53,23 +53,32 @@ func startRedis() {
 }
 
 func TestMain(m *testing.M) {
-	startRedis()
+	redisRequired := os.Getenv("TRAVIS") != "true"
+
+	// If we're running tests on Travis we do not need to
+	// run Redis as this will be run for us (using stock
+	// configuration).
+	if redisRequired {
+		startRedis()
+
+		os.Setenv("REDIS_PORT", strconv.Itoa(testingRedisPort))
+		os.Setenv("HTTP_PORT", strconv.Itoa(testingHttpPort))
+	}
 
 	// Start the HTTP server for our integration tests. Note
 	// that this must be started in a go routine so that it
-	// does not block execution of the tests.
-	os.Setenv("REDIS_PORT", strconv.Itoa(testingRedisPort))
-	os.Setenv("HTTP_PORT", strconv.Itoa(testingHttpPort))
-	// Another option for this would be to use
-	// net/http/httptest with NewServer. However I like this
-	// way as with using this we're driving our web server
-	// without any intervention.
+	// does not block execution of the tests. Another option
+	// for this would be to use net/http/httptest with NewServer.
+	// However I like this way as with using this we're driving
+	// our web server without any intervention.
 	go main()
 
 	// Run the tests.
 	result := m.Run()
 
-	stopRedis()
+	if redisRequired {
+		stopRedis()
+	}
 
 	os.Exit(result)
 }

@@ -2,33 +2,43 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/franela/goreq"
+	"github.com/garyburd/redigo/redis"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestReturns201IfCreatesMessage(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping in short mode")
-	}
-
-	resp, err := goreq.Request{
-		Method: "POST",
-		Uri:    inUrl,
-		Body:   "my test message",
-	}.Do()
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+type InSuite struct {
+	suite.Suite
+	RedisClient redis.Conn
 }
 
-func TestReturnsMessageIdInJsonIfCreated(t *testing.T) {
+func (suite *InSuite) SetupSuite() {
+	var err error
+	suite.RedisClient, err = redis.Dial("tcp", ":"+strconv.Itoa(testingRedisPort))
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+}
+
+func (suite *InSuite) SetupTest() {
+	// Clear down Redis prior to each test running.
+	_, err := suite.RedisClient.Do("FLUSHDB")
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+}
+
+func (suite *InSuite) TeardownSuite() {
+	suite.RedisClient.Close()
+}
+
+func (suite *InSuite) TestReturns201IfCreatesMessage() {
 	if testing.Short() {
-		t.Skip("skipping in short mode")
+		suite.T().Skip("skipping in short mode")
 	}
 
 	resp, err := goreq.Request{
@@ -38,15 +48,35 @@ func TestReturnsMessageIdInJsonIfCreated(t *testing.T) {
 	}.Do()
 
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
+	}
+
+	assert.Equal(suite.T(), http.StatusCreated, resp.StatusCode)
+}
+
+func (suite *InSuite) TestReturnsMessageIdInJsonIfCreated() {
+	if testing.Short() {
+		suite.T().Skip("skipping in short mode")
+	}
+
+	resp, err := goreq.Request{
+		Method: "POST",
+		Uri:    inUrl,
+		Body:   "my test message",
+	}.Do()
+
+	if err != nil {
+		suite.T().Fatal(err)
 	}
 
 	body, strErr := resp.Body.ToString()
 	if strErr != nil {
-		t.Fatal(strErr)
+		suite.T().Fatal(strErr)
 	}
 
-	// TODO: rather than hard coding 2 we should reset the
-	//       Redis store before each test.
-	assert.Equal(t, "{\"messageId\":2}", body)
+	assert.Equal(suite.T(), "{\"messageId\":1}", body)
+}
+
+func TestRouteIn(t *testing.T) {
+	suite.Run(t, new(InSuite))
 }

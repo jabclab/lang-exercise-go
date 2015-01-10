@@ -1,5 +1,9 @@
-# lang-exercise-go
+lang-exercise-go
+=====
+
 Simple RESTful web service which stores data in Redis
+
+[![Build Status](https://travis-ci.org/jabclab/lang-exercise-go.svg)](https://travis-ci.org/jabclab/lang-exercise-go)
 
 ## Development
 In order to install dependencies you must first install [`godep`](https://github.com/tools/godep):

@@ -7,15 +7,20 @@ import (
 
 	"github.com/franela/goreq"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 type MessageCreationResponse struct {
 	MessageId float64 `json:"messageId"`
 }
 
-func TestReturnsMessageIfRequested(t *testing.T) {
+type MessageIdSuite struct {
+	suite.Suite
+}
+
+func (suite *MessageIdSuite) TestReturnsMessageIfRequested() {
 	if testing.Short() {
-		t.Skip("skipping in short mode")
+		suite.T().Skip("skipping in short mode")
 	}
 
 	msg := "testing message"
@@ -27,7 +32,7 @@ func TestReturnsMessageIfRequested(t *testing.T) {
 	}.Do()
 
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
 
 	var message MessageCreationResponse
@@ -39,20 +44,20 @@ func TestReturnsMessageIfRequested(t *testing.T) {
 	}.Do()
 
 	if outErr != nil {
-		t.Fatal(outErr)
+		suite.T().Fatal(outErr)
 	}
 
 	response, strErr := outResponse.Body.ToString()
 	if strErr != nil {
-		t.Fatal(strErr)
+		suite.T().Fatal(strErr)
 	}
 
-	assert.Equal(t, msg, response)
+	assert.Equal(suite.T(), msg, response)
 }
 
-func TestShouldReturn400IfMessageDoesNotExist(t *testing.T) {
+func (suite *MessageIdSuite) TestShouldReturn400IfMessageDoesNotExist() {
 	if testing.Short() {
-		t.Skip("skipping in short mode")
+		suite.T().Skip("skipping in short mode")
 	}
 
 	invalidId := "12345"
@@ -62,15 +67,15 @@ func TestShouldReturn400IfMessageDoesNotExist(t *testing.T) {
 	}.Do()
 
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
 
-	assert.Equal(t, http.StatusBadRequest, invalidResponse.StatusCode)
+	assert.Equal(suite.T(), http.StatusBadRequest, invalidResponse.StatusCode)
 }
 
-func TestShouldReturnErrorMessageIfMessageDoesNotExist(t *testing.T) {
+func (suite *MessageIdSuite) TestShouldReturnErrorMessageIfMessageDoesNotExist() {
 	if testing.Short() {
-		t.Skip("skipping in short mode")
+		suite.T().Skip("skipping in short mode")
 	}
 
 	invalidId := "12345"
@@ -80,13 +85,17 @@ func TestShouldReturnErrorMessageIfMessageDoesNotExist(t *testing.T) {
 	}.Do()
 
 	if err != nil {
-		t.Fatal(err)
+		suite.T().Fatal(err)
 	}
 
 	body, strErr := invalidResponse.Body.ToString()
 	if strErr != nil {
-		t.Fatal(strErr)
+		suite.T().Fatal(strErr)
 	}
 
-	assert.Equal(t, "message with this ID does not exist", body)
+	assert.Equal(suite.T(), "message with this ID does not exist", body)
+}
+
+func TestRouteMessageId(t *testing.T) {
+	suite.Run(t, new(MessageIdSuite))
 }
