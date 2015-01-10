@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"strconv"
 	"testing"
 
 	"github.com/franela/goreq"
@@ -18,7 +17,7 @@ type InSuite struct {
 
 func (suite *InSuite) SetupSuite() {
 	var err error
-	suite.RedisClient, err = redis.Dial("tcp", ":"+strconv.Itoa(testingRedisPort))
+	suite.RedisClient, err = redis.Dial("tcp", ":"+redisPort())
 	if err != nil {
 		suite.T().Fatal(err)
 	}
