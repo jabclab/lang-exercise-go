@@ -19,10 +19,6 @@ type MessageIdSuite struct {
 }
 
 func (suite *MessageIdSuite) TestReturnsMessageIfRequested() {
-	if testing.Short() {
-		suite.T().Skip("skipping in short mode")
-	}
-
 	msg := "testing message"
 
 	inResponse, err := goreq.Request{
@@ -56,10 +52,6 @@ func (suite *MessageIdSuite) TestReturnsMessageIfRequested() {
 }
 
 func (suite *MessageIdSuite) TestShouldReturn400IfMessageDoesNotExist() {
-	if testing.Short() {
-		suite.T().Skip("skipping in short mode")
-	}
-
 	invalidId := "12345"
 
 	invalidResponse, err := goreq.Request{
@@ -74,10 +66,6 @@ func (suite *MessageIdSuite) TestShouldReturn400IfMessageDoesNotExist() {
 }
 
 func (suite *MessageIdSuite) TestShouldReturnErrorMessageIfMessageDoesNotExist() {
-	if testing.Short() {
-		suite.T().Skip("skipping in short mode")
-	}
-
 	invalidId := "12345"
 
 	invalidResponse, err := goreq.Request{
@@ -97,5 +85,9 @@ func (suite *MessageIdSuite) TestShouldReturnErrorMessageIfMessageDoesNotExist()
 }
 
 func TestRouteMessageId(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
+
 	suite.Run(t, new(MessageIdSuite))
 }

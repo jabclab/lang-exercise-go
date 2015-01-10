@@ -36,10 +36,6 @@ func (suite *InSuite) TeardownSuite() {
 }
 
 func (suite *InSuite) TestReturns201IfCreatesMessage() {
-	if testing.Short() {
-		suite.T().Skip("skipping in short mode")
-	}
-
 	resp, err := goreq.Request{
 		Method: "POST",
 		Uri:    inUrl,
@@ -54,10 +50,6 @@ func (suite *InSuite) TestReturns201IfCreatesMessage() {
 }
 
 func (suite *InSuite) TestReturnsMessageIdInJsonIfCreated() {
-	if testing.Short() {
-		suite.T().Skip("skipping in short mode")
-	}
-
 	resp, err := goreq.Request{
 		Method: "POST",
 		Uri:    inUrl,
@@ -77,5 +69,9 @@ func (suite *InSuite) TestReturnsMessageIdInJsonIfCreated() {
 }
 
 func TestRouteIn(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping in short mode")
+	}
+
 	suite.Run(t, new(InSuite))
 }
